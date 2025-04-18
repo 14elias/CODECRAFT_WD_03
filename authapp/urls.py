@@ -11,4 +11,6 @@ urlpatterns = [
     path('api/token/refresh/', CustomTokenRefreshView.as_view(), name='token_refresh'),
     path('is_authenticated/', Authenticated.as_view(), name='is_authenticated'),
     path('logout/', Logout.as_view(), name='logout'),
+    path('user_view/', UserView.as_view(), name='user-view'),
+    path('user_detail/<pk>/', UserDetailView.as_view(), name='user-detail'),
 ]
