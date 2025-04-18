@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -7,7 +7,8 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 from rest_framework import status
-# Create your views here.
+from .serializers import UserSerializer
+from .models import CustomUser
 
 class Authenticated(APIView):
     permission_classes=[IsAuthenticated]
@@ -85,6 +86,7 @@ class CustomTokenRefreshView(TokenRefreshView):
         
 
 class Logout(APIView):
+    permission_classes=[IsAuthenticated]
     def post(self,request):
         access_token = request.COOKIES.get('access_token')
         refresh_token = request.COOKIES.get('refresh_token')
@@ -98,3 +100,30 @@ class Logout(APIView):
         if refresh_token:
             res.delete_cookie(key='refresh_token', path='/')
         return res
+
+class UserView(APIView):
+    def post(self,request):
+        serializer = UserSerializer(data = request.data)
+        serializer.is_valid(raise_exception = True)
+        serializer.save()
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
+    def get(self,request):
+        user = CustomUser.objects.all()
+        serializer = UserSerializer(user,many=True)
+        return Response(serializer.data)
+
+class UserDetailView(APIView):
+    def get(self,request,**kwargs):
+        user = get_object_or_404(CustomUser,id=self.kwargs['pk'])
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+    def delete(self,request,*args,**kwargs):
+        user = get_object_or_404(CustomUser,id=self.kwargs['pk'])
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    def patch(self,request,*args,**kwargs):
+        user = get_object_or_404(CustomUser,id=self.kwargs['pk'])
+        serializer = UserSerializer(user,data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data,status=status.HTTP_200_OK)
