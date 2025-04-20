@@ -74,6 +74,7 @@ class OrderItem(models.Model):
     def get_total_price(self):
         return self.price * self.quantity
 class Reveiw(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='reviews')
     product = models.ForeignKey(Product, on_delete=models.CASCADE,related_name='reviews')
     description = models.TextField()
     created_at = models.DateField(auto_now_add=True)
