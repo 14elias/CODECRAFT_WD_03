@@ -6,7 +6,6 @@ User = get_user_model()
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -74,3 +73,8 @@ class OrderItem(models.Model):
 
     def get_total_price(self):
         return self.price * self.quantity
+class Reveiw(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,related_name='reviews')
+    description = models.TextField()
+    created_at = models.DateField(auto_now_add=True)
+    name = models.CharField(max_length=150)
