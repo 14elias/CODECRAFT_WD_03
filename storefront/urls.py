@@ -1,6 +1,9 @@
+from rest_framework_nested.routers import DefaultRouter, NestedDefaultRouter
 from django.urls import path
-from.views import ProductViewset
+from.views import ProductViewset,CategoryViewset
 
-urlpatterns = [
-    path('product/',ProductViewset.as_view({'get': 'list'}))
-]
+router = DefaultRouter()
+router.register(r'product', ProductViewset, basename='product')
+router.register(r'category', CategoryViewset, basename='category')
+
+urlpatterns = router.urls

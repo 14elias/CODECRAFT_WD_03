@@ -20,6 +20,7 @@ dependencies = [
     { name = "django-extensions" },
     { name = "djangorestframework" },
     { name = "djangorestframework-simplejwt" },
+    { name = "drf-nested-routers" },
     { name = "drf-yasg" },
     { name = "pillow" },
 ]
@@ -30,6 +31,7 @@ requires-dist = [
     { name = "django-extensions", specifier = ">=4.1" },
     { name = "djangorestframework", specifier = ">=3.16.0" },
     { name = "djangorestframework-simplejwt", specifier = ">=5.5.0" },
+    { name = "drf-nested-routers", specifier = ">=0.94.1" },
     { name = "drf-yasg", specifier = ">=1.21.10" },
     { name = "pillow", specifier = ">=11.2.1" },
 ]
@@ -84,6 +86,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/db/1e/0d4439d0fa1d93599fbcfc56efdc02cbf012e3a4b4ef90c835e0a51017d4/djangorestframework_simplejwt-5.5.0.tar.gz", hash = "sha256:474a1b737067e6462b3609627a392d13a4da8a08b1f0574104ac6d7b1406f90e", size = 97946 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/42/b4/d1c1750aa7c8cc07e4974275f96b9b9b3a38e95ff734e14b4e97790c8974/djangorestframework_simplejwt-5.5.0-py3-none-any.whl", hash = "sha256:4ef6b38af20cdde4a4a51d1fd8e063cbbabb7b45f149cc885d38d905c5a62edb", size = 103480 },
+]
+
+[[package]]
+name = "drf-nested-routers"
+version = "0.94.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+    { name = "djangorestframework" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/1e/24/9e6a070dc491a416c93e4ec41950c7ea66d6a63b8db8d8abc0c128355978/drf-nested-routers-0.94.1.tar.gz", hash = "sha256:2b846385ed95c9f17bf4242db3b264ac826b5af00dda6c737d3fe7cc7bf2c7db", size = 18347 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4e/a2/313a95268ffae9773a59aeb15c3f6932d4c905616d4797b371e6257fc8f9/drf_nested_routers-0.94.1-py2.py3-none-any.whl", hash = "sha256:3a8ec45a025c0f39188ec1ec415244beb875a6f4db87911a1f5a606d09b68c9f", size = 36260 },
 ]
 
 [[package]]
