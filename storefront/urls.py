@@ -1,12 +1,13 @@
 from rest_framework_nested.routers import DefaultRouter, NestedDefaultRouter
 from django.urls import path
-from.views import CartItemViewset, CartViewset, ProductViewset,CategoryViewset, ReveiwViewset
+from.views import CartItemViewset, CartViewset, OrderViewset, ProductViewset,CategoryViewset, ReveiwViewset
 
 #main router
 router = DefaultRouter()
 router.register(r'product', ProductViewset, basename='product')
 router.register(r'category', CategoryViewset, basename='category')
 router.register(r'cart', CartViewset, basename='cart')
+router.register(r'order', OrderViewset, basename='order')
 
 #default router
 product_router=NestedDefaultRouter(router, r'product', lookup='product')
