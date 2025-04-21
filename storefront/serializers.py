@@ -37,18 +37,48 @@ class ReveiwSerializer(serializers.ModelSerializer):
         return review
 
 class CartItemSerializer(serializers.ModelSerializer):
-    product = serializers.Serializer
+    product_name=serializers.SerializerMethodField()
+    product_price = serializers.SerializerMethodField()
+    total_price = serializers.SerializerMethodField()
     class Meta:
         model = CartItem
-        fields = ['id','quantity','cart','product']
+        fields = ['id','quantity','product','product_name','product_price','total_price']
+    
+    def get_product_name(self,obj):
+        return obj.product.name
+    
+    def get_product_price(self,obj):
+        return obj.product.price
+    
+    def get_total_price(self,obj):
+        #calling object method implemented in models file
+        return obj.get_total_price()
+    
+    def create(self, validated_data):
+        cart_id = self.context.get('cart_id')
+        product = validated_data.get('product')
+        quantity = validated_data.get('quantity')
 
+        cart_item = CartItem.objects.filter(cart_id=cart_id, product=product).first()
+
+        if cart_item :
+            cart_item.quantity += quantity
+            cart_item.save()
+            return cart_item
+        
+        return CartItem.objects.create(cart_id = cart_id,**validated_data)
+    
 class CartSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True)
+    total_price = serializers.SerializerMethodField()
     class Meta:
         model = Cart
-        fields = ['id','user','created_at','items']
-        etxtra_kwargs={
+        fields = ['id','user','created_at','items','total_price']
+        extra_kwargs={
             'user':{'read_only':True},
             'created_at':{'read_only':True},
             'id':{'read_only':True}
         }
+
+    def get_total_price(self,obj):
+        return sum([item.product.price * item.quantity for item in obj.items.all() ])
