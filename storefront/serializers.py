@@ -1,7 +1,7 @@
-from rest_framework.serializers import ModelSerializer,SerializerMethodField
-from .models import Product,Category, Reveiw
+from rest_framework import serializers
+from .models import Cart, CartItem, Product,Category, Reveiw
 
-class ProductSerializer(ModelSerializer):
+class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id','name','description','image','brand','category','created_at','is_active','price']
@@ -10,7 +10,7 @@ class ProductSerializer(ModelSerializer):
             'updated_at':{'read_only':True},
         }
 
-class CategorySerializer(ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id','name','created_at']
@@ -18,8 +18,8 @@ class CategorySerializer(ModelSerializer):
             'created_at':{'read_only':True}
         }
 
-class ReveiwSerializer(ModelSerializer):
-    user=SerializerMethodField(read_only=True)
+class ReveiwSerializer(serializers.ModelSerializer):
+    user=serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Reveiw
         fields = ['id','name','product','created_at','description','user']
@@ -35,3 +35,20 @@ class ReveiwSerializer(ModelSerializer):
         product_id = self.context['product_id']
         review = Reveiw.objects.create(user=user,product_id=product_id,**validated_data)
         return review
+
+class CartItemSerializer(serializers.ModelSerializer):
+    product = serializers.Serializer
+    class Meta:
+        model = CartItem
+        fields = ['id','quantity','cart','product']
+
+class CartSerializer(serializers.ModelSerializer):
+    items = CartItemSerializer(many=True)
+    class Meta:
+        model = Cart
+        fields = ['id','user','created_at','items']
+        etxtra_kwargs={
+            'user':{'read_only':True},
+            'created_at':{'read_only':True},
+            'id':{'read_only':True}
+        }
