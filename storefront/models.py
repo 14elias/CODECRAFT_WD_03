@@ -51,13 +51,18 @@ class CartItem(models.Model):
         unique_together = ('cart', 'product')
 
 class Order(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('shipped', 'Shipped'),
+        ('cancelled', 'Cancelled'),
+    ]
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     full_name = models.CharField(max_length=200)
     address = models.TextField()
     phone = models.CharField(max_length=20)
     created_at = models.DateTimeField(auto_now_add=True)
     paid = models.BooleanField(default=False)
-    delivered = models.BooleanField(default=False)
+    status = models.CharField(max_length=9, choices=STATUS_CHOICES, default='pending')
 
     def __str__(self):
         return f"Order #{self.id} by {self.user.username}"
