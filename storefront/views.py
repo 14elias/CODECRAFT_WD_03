@@ -4,8 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from .permissions import IsAdminOrReadOnly
-from .models import Cart, CartItem, Category, Product, Reveiw
-from .serializers import CartItemSerializer, CartSerializer, ProductSerializer,CategorySerializer, ReveiwSerializer
+from .models import Cart, CartItem, Category, Order, Product, Reveiw
+from .serializers import CartItemSerializer, CartSerializer, OrderSerializer, ProductSerializer,CategorySerializer, ReveiwSerializer
 from.pagination import DefaultPagination
 
 
@@ -57,4 +57,9 @@ class CartItemViewset(ModelViewSet):
         raise PermissionDenied("You are not allowed to view this cart.")
     
     def get_serializer_context(self):
-        return {'cart_id':self.kwargs['cart_pk'],'request':self.request}
+        return {'cart_id':self.kwargs['cart_pk']}
+
+class OrderViewset(ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    http_method_names = ['get','post']
