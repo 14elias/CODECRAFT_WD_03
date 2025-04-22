@@ -1,11 +1,12 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
+from rest_framework import status
 from .permissions import IsAdminOrReadOnly
 from .models import Cart, CartItem, Category, Order, Product, Reveiw
-from .serializers import CartItemSerializer, CartSerializer, OrderSerializer, ProductSerializer,CategorySerializer, ReveiwSerializer
+from .serializers import CartItemSerializer, CartSerializer, CreateOrderSerializer,  OrderSerializer, ProductSerializer,CategorySerializer, ReveiwSerializer
 from.pagination import DefaultPagination
 
 
@@ -41,6 +42,8 @@ class CartViewset(ModelViewSet):
     http_method_names=['get']
 
     def get_queryset(self):
+        if self.request.user.is_staff:
+            return Cart.objects.all()
         return Cart.objects.filter(user=self.request.user)
     
 
@@ -51,7 +54,10 @@ class CartItemViewset(ModelViewSet):
     def get_queryset(self):
         cart= get_object_or_404(Cart, user = self.request.user)
 
-        if cart.id and cart.id == int(self.kwargs['cart_pk']):
+        if self.request.user.is_staff:
+            return CartItem.objects.filter(cart=self.kwargs['cart_pk'])
+
+        elif cart.id and cart.id == int(self.kwargs['cart_pk']):
             return CartItem.objects.filter(cart=self.kwargs['cart_pk'])
         
         raise PermissionDenied("You are not allowed to view this cart.")
@@ -60,6 +66,28 @@ class CartItemViewset(ModelViewSet):
         return {'cart_id':self.kwargs['cart_pk']}
 
 class OrderViewset(ModelViewSet):
-    queryset = Order.objects.all()
-    serializer_class = OrderSerializer
-    http_method_names = ['get','post']
+    http_method_names = ['patch','delete','get','options','head']
+    
+    def get_permissions(self):
+        if self.request.method in ['PATCH','DELETE']:
+            return [IsAdminUser()]
+        return [IsAuthenticated()]
+
+    def create(self, request, *args, **kwargs):
+        serializer = CreateOrderSerializer(data=request.data, context = {'request':self.request})
+        serializer.is_valid(raise_exception=True)
+        order = serializer.save()
+        serializer = OrderSerializer(order)
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
+    
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.is_staff:
+            return Order.objects.all()
+        return Order.objects.filter(user=user)
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CreateOrderSerializer
+        return OrderSerializer
