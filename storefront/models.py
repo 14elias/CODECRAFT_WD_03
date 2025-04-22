@@ -30,11 +30,12 @@ class Product(models.Model):
 
 
 class Cart(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cart')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cart',verbose_name='cart_id')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.user.first_name}'s Cart"
+    
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
@@ -57,15 +58,11 @@ class Order(models.Model):
         ('cancelled', 'Cancelled'),
     ]
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
-    full_name = models.CharField(max_length=200)
-    address = models.TextField()
-    phone = models.CharField(max_length=20)
     created_at = models.DateTimeField(auto_now_add=True)
-    paid = models.BooleanField(default=False)
     status = models.CharField(max_length=9, choices=STATUS_CHOICES, default='pending')
 
     def __str__(self):
-        return f"Order #{self.id} by {self.user.username}"
+        return f"Order #{self.id} by {self.user.first_name}"
     
     def get_total_price(self):
         return sum(item.get_total_price() for item in self.items.all())
