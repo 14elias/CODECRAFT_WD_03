@@ -1,4 +1,6 @@
+from django.db import transaction
 from rest_framework import serializers
+from rest_framework.exceptions import NotFound, PermissionDenied
 from .models import Cart, CartItem, Order, OrderItem, Product,Category, Reveiw
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -85,16 +87,51 @@ class CartSerializer(serializers.ModelSerializer):
     
 class OrderItemSerializer(serializers.ModelSerializer):
     total_price = serializers.SerializerMethodField()
-    product = ProductSerializer
+    product = ProductSerializer()
     class Meta:
         model = OrderItem
         fields = ['id','product','quantity','price','total_price']
 
     def get_total_price(self,obj):
-        return obj.get_total_price(obj)
+        return obj.get_total_price()
     
 class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer
+    items = OrderItemSerializer(many = True)
     class Meta:
         model = Order
-        fields = ['id','user','full_name','address','phone','created_at','status','paid','items']
+        fields = ['id','user','created_at','status','items']
+
+    
+class CreateOrderSerializer(serializers.Serializer):
+    cart_id = serializers.IntegerField()
+
+    def validate_cart_id(self,cart_id):
+        if not Cart.objects.filter(pk=cart_id).exists():
+            raise serializers.ValidationError('no cart found with the given id')
+        if CartItem.objects.filter(cart_id=cart_id).count() == 0:
+            raise serializers.ValidationError('The cart is empty')
+        return cart_id
+    
+    def save(self, **kwargs):
+        with transaction.atomic():
+            cart_id = self.validated_data['cart_id']
+            user = self.context['request'].user
+
+            if cart_id != user.cart.id:
+                raise PermissionDenied("the cart is not your's")
+
+            cart_items = CartItem.objects.filter(cart_id=cart_id)
+            
+            order = Order.objects.create(user=user)
+
+            order_item = [OrderItem(
+                order = order,
+                product = items.product,
+                quantity = items.quantity,
+                price = items.product.price
+            ) for items in cart_items]
+
+            OrderItem.objects.bulk_create(order_item)
+            cart_items.delete()
+
+            return order
