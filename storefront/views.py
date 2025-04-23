@@ -6,7 +6,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework import status
 from .permissions import IsAdminOrReadOnly
 from .models import Cart, CartItem, Category, Order, Product, Reveiw
-from .serializers import CartItemSerializer, CartSerializer, CreateOrderSerializer,  OrderSerializer, ProductSerializer,CategorySerializer, ReveiwSerializer
+from .serializers import CartItemSerializer, CartSerializer, CreateOrderSerializer,  OrderSerializer, ProductSerializer,CategorySerializer, ReveiwSerializer, UpdateOrder
 from.pagination import DefaultPagination
 
 
@@ -90,4 +90,6 @@ class OrderViewset(ModelViewSet):
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return CreateOrderSerializer
+        elif self.request.method == 'PATCH':
+            return UpdateOrder
         return OrderSerializer
